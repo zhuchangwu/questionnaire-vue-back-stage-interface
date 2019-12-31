@@ -42,18 +42,18 @@
             </div>
           </div>
           <footer class="footer">
-              <div class="pick-date">
-                <div class="time-container">
-                  <el-date-picker v-model="expireTime" type="datetime" format="yyyy-MM-dd HH:mm:ss"
-                                  placeholder="添加过期时间"/>
-                </div>
+            <div class="pick-date">
+              <div class="time-container">
+                <el-date-picker v-model="date" type="datetime" format="yyyy-MM-dd HH:mm:ss"
+                                placeholder="添加过期时间"/>
               </div>
-              <div class="questionnaire-save">
-                <el-row>
-                  <el-button size="medium" class="pan-btn pink-btn" round>保存问卷</el-button>
-                  <el-button size="medium" @click="doPrint" class="pan-btn blue-btn" round>打印问卷</el-button>
-                </el-row>
-              </div>
+            </div>
+            <div class="questionnaire-save">
+              <el-row>
+                <el-button size="medium" class="pan-btn pink-btn" @click="uploadQuestionnaire" round>保存问卷</el-button>
+                <el-button size="medium" @click="doPrint" class="pan-btn blue-btn" round>打印问卷</el-button>
+              </el-row>
+            </div>
           </footer>
         </el-card>
       </el-col>
@@ -65,6 +65,8 @@
 <script>
   import Question from './Question'
   import MDinput from '@/components/MDinput'
+  import { addQuestionnaire } from '@/api/questionnaireRequest'
+  import {MessageBox} from 'element-ui'
 
   export default {
     name: "index",
@@ -75,18 +77,45 @@
       return {
         title: '',
         questions: [],
-        publish: false,
-        expireTime: '',
+        date: '',
         qnId: -1,
       }
     },
     methods: {
+      doMessage(str){
+        MessageBox.alert(str, 'Confirm logout', {
+          confirmButtonText: '确定',
+          type: 'warning',
+          showClose: false
+        })
+      },
       doPrint() {
         console.log("-----------------------------------------------------")
         console.log("--------------在控制台打印问卷打印问卷---------------")
         console.log(this.questions)
         console.log("--------------在控制台打印问卷打印问卷---------------")
         console.log("-----------------------------------------------------")
+      },
+      // 上传问卷
+      uploadQuestionnaire(){
+        // 使用token做信息验证, 后端将从token中解析出userId
+        if (this.title===''){
+          this.doMessage('问卷名不能为空');
+          return;
+        }
+        alert("this.exipreTime = " +　this.date)
+        if (this.date===''){
+          this.doMessage('问卷过期时间不能为空');
+          return;
+        }
+        // todo 去除这里面的空格
+        let qObj = {
+          "title":this.title,
+          "questions":this.questions,
+          "exipreTime":this.date
+        }
+        // 上传
+         addQuestionnaire(qObj)
       },
       // 动态添加一个 question
       addQuestion(type) {
@@ -123,7 +152,15 @@
       copyOption: function (index) {
         let temp = JSON.stringify(this.questions[index])
         let newQ = JSON.parse(temp)
-        newQ.answersData = []
+
+        if (newQ.answersData!==undefined && newQ.answersData.length>=2){ // 清空选择题的答案
+          for (var i = 0; i < newQ.answersData.length; i++) {
+            newQ.answersData[i] = false
+          }
+        }else{ // 清空简答题的是否必填
+            newQ.required=false;
+        }
+
         this.questions.push(newQ)
         /* let option =  this.questions[index];
          this.questions.push(option);*/
@@ -184,8 +221,9 @@
   .footer {
     width: 100%;
     height: 60px;
-    clear:both;
+    clear: both;
   }
+
   .questionnaire-save {
     width: 50%;
     padding: 20px;
@@ -198,6 +236,7 @@
     float: left;
     padding: 20px;
   }
+
   .time-container {
     display: inline-block;
   }

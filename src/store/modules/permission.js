@@ -54,9 +54,11 @@ const actions = {
     return new Promise(resolve => {
       let accessedRoutes
       // 如果用户的角色信息中包含 admin, 让他可以访问 router 路由表中定义的 asyncRouters 模块
-      if (roles.includes('admin')) {
+      if (roles.includes('ROLE_ADMIN')) {
+        alert("yes  ROLE_ADMIN")
         accessedRoutes = asyncRoutes || []
       } else {
+        alert("no   ROLE_USER")
         // 如果没有admin的权限, 根据它现有的角色再去动态的过滤路由
         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       }

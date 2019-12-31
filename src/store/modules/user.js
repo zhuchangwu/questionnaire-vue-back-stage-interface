@@ -33,14 +33,16 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     // JS的异步请求, Pormise接受一个 executor 函数执行异步任务, executor函数入参位置上有两个函数当作参数
-    // 当reselve() 执行时, promise函数的状态被修改成fulfilled , 表示已经完成
+    // 当resolve() 执行时, promise函数的状态被修改成fulfilled , 表示已经完成
     // 当reject()函数执行时, 表示 promise 异步请求失败了
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        // 将token提交给mutations
-        commit('SET_TOKEN', response.token)
+        var token = response.token
+        //token ==> mutations ==> state
+        //role ==> mutations  ==> state
+        commit('SET_TOKEN', token)
         // 将token以cookie的形式保存在浏览器
-        setToken(response.token)
+        setToken(token)
         resolve()
       }).catch(error => {
         reject(error)
@@ -71,7 +73,7 @@ const actions = {
         // 标记异步请求完成
         resolve(data)
       }).catch(error => {
-        reject(error)
+         reject(error)
       })
     })
   },
@@ -84,11 +86,9 @@ const actions = {
         commit('SET_ROLES', [])
         removeToken()
         resetRouter()
-
         // reset visited views and cached views
         // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
         dispatch('tagsView/delAllViews', null, { root: true })
-
         resolve()
       }).catch(error => {
         reject(error)

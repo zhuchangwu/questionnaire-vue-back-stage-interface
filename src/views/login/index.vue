@@ -93,7 +93,7 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '1111111'
+        password: '123123'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -162,7 +162,7 @@ export default {
           // 登录的请求放在了 vuex 中的 action 中去发送异步请求
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
-              alert('准备跳转到登录页面....')
+              alert('准备跳转到主页面....')
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
             })

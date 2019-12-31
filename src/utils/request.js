@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import {MessageBox, Message} from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import {getToken} from '@/utils/auth'
 
 // todo create an axios instance
 const service = axios.create({
@@ -36,7 +36,7 @@ service.interceptors.response.use(
   /**
    * If you want to get http information such as headers or status
    * Please return  response => response
-  */
+   */
 
   /**
    * 下面是一个例子, 表示我们可以根据自定义的请求的状态码做出不同的状态
@@ -45,38 +45,43 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
-    const res = response.data
-    // if the custom code is not 20000, it is judged as an error.
-    // 如果不为200的话, 显示200 错误码
-    if (res.code !== 200) {
-      Message({
-        message: res.message || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
+    var res = response.data
+    // if the custom code is not 200, it is judged as an error.
+    // 适配我在后端传递过来的json串
 
-      // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-      // 50008: 表示非法的token  50012 表示其他客户端登录了 50014: 表示token过期了
-      if (res.code === 50008 || res.code === 50012 || res.code === 50014) {
-        // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning'
+    if (res.code === undefined) {
+      res = JSON.parse(res);
+    }
+
+    if (res.code !== 200) {
+      // 50008: 表示非法的用户名或者密码错误
+      if (res.code === 50008) {
+        Message.warning({
+          message: res.token,
+          showClose: true,
+          type: 'warning',
+          duration: 5 * 1000
+        })
+        // 50012:  没有相关的权限
+        // 50014   身份凭证已过期 , /permission.js中进行处理 , 它设计的思路是 比如用户刷新了一下页面,
+      }else if (res.code === 50012) {
+        MessageBox.alert(res.token, 'Confirm logout', {
+          confirmButtonText: '确定',
+          type: 'warning',
+          showClose: false
         }).then(() => {
           store.dispatch('user/resetToken').then(() => {
             location.reload()
           })
         })
       }
-      return Promise.reject(new Error(res.message || 'Error'))
+      return Promise.reject()
     } else {
       // 如果状态码为200, 表示请求正常, 将response传递到 异步函数的then位置,继续使用
       return res
     }
   },
   error => {
-    console.log('err' + error) // for debug
     Message({
       message: error.message,
       type: 'error',
@@ -85,5 +90,4 @@ service.interceptors.response.use(
     return Promise.reject(error)
   }
 )
-
 export default service

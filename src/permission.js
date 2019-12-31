@@ -46,7 +46,7 @@ router.beforeEach(async(to, from, next) => {
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
           const { roles } = await store.dispatch('user/getInfo')
           alert('拉取到了用户的信息 roles ' + roles)
-          // todo 根据角色的信息,生成指定的 可访问的路由列表
+          // 根据角色的信息,生成指定的 可访问的路由列表
           // generate accessible routes map based on roles
           const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
 
