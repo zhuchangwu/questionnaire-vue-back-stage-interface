@@ -65,8 +65,8 @@
 <script>
   import Question from './Question'
   import MDinput from '@/components/MDinput'
-  import { addQuestionnaire } from '@/api/questionnaireRequest'
-  import {MessageBox} from 'element-ui'
+  import questionnaireRequest from '@/api/questionnaireRequest'
+  import {MessageBox, Message} from 'element-ui'
 
   export default {
     name: "index",
@@ -81,8 +81,21 @@
         qnId: -1,
       }
     },
+    created() {
+      // 尝试从缓存中获取出问卷的信息,因此进入这个页面的动作有可能是想进来修改问卷
+      var questionnaire = window.sessionStorage.getItem("edit-questionnaire");
+      // todo 清除指定缓存  window.sessionStorage.clear("edit-questionnaire");
+      var obj = JSON.parse(questionnaire);
+
+      this.title = obj.title;
+      this.questions = obj.questions;
+      this.date = obj.exipreTime;
+
+
+       window.sessionStorage.removeItem("edit-questionnaire")
+    },
     methods: {
-      doMessage(str){
+      doMessage(str) {
         MessageBox.alert(str, 'Confirm logout', {
           confirmButtonText: '确定',
           type: 'warning',
@@ -97,25 +110,54 @@
         console.log("-----------------------------------------------------")
       },
       // 上传问卷
-      uploadQuestionnaire(){
+      uploadQuestionnaire() {
+        // 校验参数是否正常
+        if (!this.viladite()) {
+          return
+        }
         // 使用token做信息验证, 后端将从token中解析出userId
-        if (this.title===''){
-          this.doMessage('问卷名不能为空');
-          return;
-        }
-        alert("this.exipreTime = " +　this.date)
-        if (this.date===''){
-          this.doMessage('问卷过期时间不能为空');
-          return;
-        }
-        // todo 去除这里面的空格
         let qObj = {
-          "title":this.title,
-          "questions":this.questions,
-          "exipreTime":this.date
+          "title": this.title.trim(),
+          "questions": this.questions,
+          "exipreTime": this.date
         }
         // 上传
-         addQuestionnaire(qObj)
+        questionnaireRequest.addQuestionnaire(qObj).then(res => {
+          // 添加完成，清空当前问卷就好
+          qObj = {};
+          this.title = '';
+          this.questions = [];
+          this.date = '';
+          Message.success({
+            message: res.msg,
+            showClose: true,
+            type: 'warning',
+            duration: 4 * 1000
+          })
+        }).catch(err => {
+
+        })
+      },
+      viladite() {
+        if (this.title.trim() === '') {
+          this.doMessage('问卷名不能为空');
+          return false;
+        }
+        if (this.date === '') {
+          this.doMessage('问卷过期时间不能为空');
+          return false;
+        }
+        if (this.questions.length <= 0) {
+          this.doMessage('题目不能为空');
+          return false;
+        }
+        // todo
+        var endTime = Date.parse(this.date);
+        if (new Date() >= endTime) {
+          this.doMessage('过期时间不得小于当前时间');
+          return false;
+        }
+        return true;
       },
       // 动态添加一个 question
       addQuestion(type) {
@@ -153,12 +195,12 @@
         let temp = JSON.stringify(this.questions[index])
         let newQ = JSON.parse(temp)
 
-        if (newQ.answersData!==undefined && newQ.answersData.length>=2){ // 清空选择题的答案
+        if (newQ.answersData !== undefined && newQ.answersData.length >= 2) { // 清空选择题的答案
           for (var i = 0; i < newQ.answersData.length; i++) {
             newQ.answersData[i] = false
           }
-        }else{ // 清空简答题的是否必填
-            newQ.required=false;
+        } else { // 清空简答题的是否必填
+          newQ.required = false;
         }
 
         this.questions.push(newQ)

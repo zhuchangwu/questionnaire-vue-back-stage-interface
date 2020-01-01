@@ -19,6 +19,7 @@ export default function checkPermission(value) {
     }
     return true
   } else {
+    // todo
     console.error(`need roles! Like v-permission="['admin','editor']"`)
     return false
   }

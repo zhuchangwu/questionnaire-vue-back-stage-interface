@@ -106,14 +106,20 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/sticky',
+    path: '/table',
     component: Layout,
+    redirect: '/questionnaire-table/complex-table',
+    name: 'Table',
+    meta: {
+      title: 'Table',
+      icon: 'table'
+    },
     children: [
       {
-        path: 'index',
-        component: () => import('@/views/create-questionnaire/sticky'),
-        name: 'Documentation',
-        meta: { title: '日期', icon: 'edit', affix: true }
+        path: 'complex-table',
+        component: () => import('@/views/questionnaire-table/complex-table'),
+        name: 'ComplexTable',
+        meta: { title: '问卷管理' }
       }
     ]
   }

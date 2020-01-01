@@ -62,7 +62,7 @@ service.interceptors.response.use(
           type: 'warning',
           duration: 5 * 1000
         })
-        // 50012:  没有相关的权限
+        // 50012:  没有相关的权限 , 或者是后端检测到诸如token已过期, 想让用户重新登录的逻辑
         // 50014   身份凭证已过期 , /permission.js中进行处理 , 它设计的思路是 比如用户刷新了一下页面,
       }else if (res.code === 50012) {
         MessageBox.alert(res.token, 'Confirm logout', {
