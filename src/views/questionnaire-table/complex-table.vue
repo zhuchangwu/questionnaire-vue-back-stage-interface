@@ -9,7 +9,8 @@
         </el-input>
       </el-col>
       <el-col :span="8">
-        <el-button type="primary" icon="el-icon-search">搜索</el-button>
+
+        <el-button type="primary" icon="el-icon-search" @click="doInputSearch">搜索</el-button>
       </el-col>
     </el-row>
     <div class="myDiv">
@@ -46,19 +47,18 @@
           label="操作"
           width="229"
           align="left">
-
           <template slot-scope="scope">
             <el-button
               v-if="scope.row.status==='已发布'"
               size="mini"
               type="info"
-              @click="handleEdit(scope.$index, scope.row)">下架
+              @click="handleBackOnline(scope.$index, scope.row)">下架
             </el-button>
             <el-button
               size="mini"
               v-else
               type="success"
-              @click="handleEdit(scope.$index, scope.row)">发布
+              @click="handlePushOnline(scope.$index, scope.row)">发布
             </el-button>
             <el-button
               size="mini"
@@ -79,7 +79,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[3, 5, 10, 20]"
+        :page-sizes="[10, 15, 20, 25]"
         :pageSize="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total">
@@ -90,6 +90,8 @@
 
 <script>
   import questionnaireRequest from '@/api/questionnaireRequest'
+  import {Message} from 'element-ui'
+
 
   export default {
     name: "complex-table",
@@ -98,7 +100,7 @@
         inputSearch: '',
         total: 0, // 总条数
         currentPage: 1, // 当前页
-        pageSize: 0, // 每页大小
+        pageSize: 10, // 每页大小
         currentPageData: [], // 当前页的数据
       }
     },
@@ -107,8 +109,8 @@
       this.doGetQuestionnaireByPage(1, 10);
     },
     methods: {
-      doGetQuestionnaireByPage(currentPage, limit) {
-        questionnaireRequest.getQuestionnaireByPage(currentPage, limit).then(res => {
+      doGetQuestionnaireByPage(currentPage, limit, name) {
+        questionnaireRequest.getQuestionnaireByPage(currentPage, limit, name).then(res => {
           // 格式化
           for (var i = 0; i < res.data.content.length; i++) {
             // 时间
@@ -126,9 +128,10 @@
               res.data.content[i].status = ' 已删除';
             }
           }
-
           this.currentPageData = res.data.content;
-          this.total = res.data.numberOfElements;
+          this.total = res.data.totalElements;
+        }).catch(error=>{
+
         })
       },
       formatter(thistime, fmt) {
@@ -153,26 +156,51 @@
         return fmt
       },
       handleEdit(index, row) {
-        questionnaireRequest.getQuestionnaireById(row.id).then(res=>{
+        questionnaireRequest.getQuestionnaireById(row.id).then(res => {
+          window.sessionStorage.setItem("edit-questionnaire", JSON.stringify(res.data))
+          this.$router.push({path: '/documentation/index'})
+        })
+      },
+      //上线
+      handlePushOnline(index, row) {
+        questionnaireRequest.pushOnline(row.id).then(res => {
+          Message.success(res.msg)
+          this.doGetQuestionnaireByPage(this.currentPage, this.pageSize);
+        })
+      },
+      // 下线
+      handleBackOnline(index, row) {
+        questionnaireRequest.backOnline(row.id).then(res => {
+          Message.success(res.msg)
+          this.doGetQuestionnaireByPage(this.currentPage, this.pageSize);
+        }).catch(error=>{
 
-          console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-          console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-          console.log("+++++++      res      ++++++++" + JSON.stringify(res.data))
-          console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-          console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-
-               window.sessionStorage.setItem("edit-questionnaire",JSON.stringify(res.data))
-               this.$router.push({path: '/documentation/index'})
-         })
+        })
       },
       handleDelete(index, row) {
-        console.log(index, row);
+        questionnaireRequest.delete(row.id).then(res => {
+          Message.success(res.msg)
+          this.doGetQuestionnaireByPage(this.currentPage, this.pageSize);
+        }).catch(error=>{
+
+        })
       },
       handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+        this.pageSize = val;
+        this.doGetQuestionnaireByPage(1, val);
       },
       handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+        this.doGetQuestionnaireByPage(val, this.pageSize);
+      },
+      doInputSearch(){
+        if (this.inputSearch.trim()===''){
+          Message.warning("请输入问卷名称再进行搜索");
+        }
+        this.currentPage=1;
+        this.doGetQuestionnaireByPage(this.currentPage,this.pageSize,this.inputSearch)
+
+        this.inputSearch=''
+        // todo 第一次进来时 出现了400异常
       }
     }
   }

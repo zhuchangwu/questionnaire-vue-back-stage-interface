@@ -2,19 +2,19 @@
   <el-card shadow="hover" body-style="{ padding: '0px' }" class="card-question">
     <li class="li-question">
       <div class="content">
-        <div >
+        <div>
           <el-col :span="24">
-              <p>问题{{qIndex+1}}: &nbsp</p>
-              <p contenteditable="true" class="p-question-title"
-                 @keyup="toChangeQuestionTitle(qIndex,$event)">
-                {{theQuestion.title}}
-              </p>
+            <p>问题{{qIndex+1}}: &nbsp</p>
+            <p contenteditable="true" class="p-question-title"
+               @keyup="toChangeQuestionTitle(qIndex,$event)">
+              {{theQuestion.title}}
+            </p>
           </el-col>
         </div>
-        <!-- 遍历出单选还是多选的所有 option-->
         <ol v-if="theQuestion.type!=='text'">
           <li v-for="(answer,answerIndex) in theQuestion.answers">
             <input class="color-input-green" :type="theQuestion.type" :name="'问题'+(qIndex+1)"
+                   :checked="theQuestion.answersData[answerIndex]==='true'"
                    style='display:inline-block' @click='addAnswer(theQuestion,answerIndex)'>
             <div style='display:inline-block'>
               <p contenteditable class="p-question-body" @keyup="toChangeQuestionOption(qIndex,answerIndex,$event)">
@@ -32,10 +32,11 @@
           </el-input>
         </div>
 
-        <Label v-if="theQuestion.type==='text'" for="isRequired" class="check-label">
-          <input @change="toChangeTextQuestionRequired(qIndex,$event)" type="checkbox" id="isRequired">
+        <label v-if="theQuestion.type==='text'" for="isRequired" class="check-label">
+          <input @change="toChangeTextQuestionRequired(qIndex,$event)" type="checkbox" id="isRequired"
+                 :checked="theQuestion.required">
           <span>是否必填</span>
-        </Label>
+        </label>
 
         <div class="add-option">
           <el-button type="danger" icon="el-icon-delete" @click="toDeleteOption(qIndex)" circle></el-button>

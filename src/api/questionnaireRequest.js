@@ -12,34 +12,67 @@ export default {
       data
     })
   },
-
-  getQuestionnaireByPage(from,limit){
+  getQuestionnaireByPage(from, limit ,name) {
     return request({
-      url:'/questionnaire/getQuestionnaireByPage',
-      method:'get',
-      headers:{
+      url: '/questionnaire/getQuestionnaireByPage',
+      method: 'get',
+      headers: {
         "Authrication": "Bearer " + getToken()
       },
-      params:{
-        "from":from,
-        "limit":limit
+      params: {
+        "from": from,
+        "limit": limit,
+        "name": name
       }
     })
   },
-  getQuestionnaireById(id){
+  getQuestionnaireById(id) {
     return request({
-      url:'/questionnaire/getQuestionnaireById',
-      method:'get',
-      headers:{
+      url: '/questionnaire/getQuestionnaireById',
+      method: 'get',
+      headers: {
         "Authrication": "Bearer " + getToken()
       },
-      params:{
-        "id":id
+      params: {
+        "id": id
       }
     })
-  }
-
-
-
+  },
+  pushOnline(id) {
+    return request({
+      url: '/questionnaire/pushOnline',
+      method: 'put',
+      headers: {
+        "Authrication": "Bearer " + getToken()
+      },
+      params: {
+        "id": id
+      }
+    })
+  },
+  backOnline(id) {
+    return request({
+      url: '/questionnaire/backOnline',
+      method: 'put',
+      headers: {
+        "Authrication": "Bearer " + getToken()
+      },
+      params: {
+        "id": id
+      }
+    })
+  },
+  delete(id) {
+    return request({
+      url: '/questionnaire/delete',
+      method: 'put',
+      headers: {
+        "Authrication": "Bearer " + getToken()
+      },
+      params: {
+        "id": id
+      }
+    })
+  },
 
 }

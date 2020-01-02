@@ -78,7 +78,7 @@
         title: '',
         questions: [],
         date: '',
-        qnId: -1,
+        id: -1,
       }
     },
     created() {
@@ -86,11 +86,10 @@
       var questionnaire = window.sessionStorage.getItem("edit-questionnaire");
       // todo 清除指定缓存  window.sessionStorage.clear("edit-questionnaire");
       var obj = JSON.parse(questionnaire);
-
+      this.id=obj.id;
       this.title = obj.title;
       this.questions = obj.questions;
       this.date = obj.exipreTime;
-
 
        window.sessionStorage.removeItem("edit-questionnaire")
     },
@@ -120,6 +119,10 @@
           "title": this.title.trim(),
           "questions": this.questions,
           "exipreTime": this.date
+        }
+
+        if (this.id!==-1){
+          qObj.id = this.id;
         }
         // 上传
         questionnaireRequest.addQuestionnaire(qObj).then(res => {
