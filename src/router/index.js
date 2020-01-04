@@ -87,7 +87,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/create-questionnaire/index'),
         name: 'Documentation',
-        meta: { title: '新建问卷', icon: 'edit', affix: true }
+        meta: { title: '新建问卷', icon: 'form', affix: true }
       }
     ]
   },
@@ -119,7 +119,26 @@ export const constantRoutes = [
         path: 'complex-table',
         component: () => import('@/views/questionnaire-table/complex-table'),
         name: 'ComplexTable',
-        meta: { title: '问卷管理' }
+        meta: { title: '问卷管理',icon:'clipboard' }
+      }
+    ]
+  }
+  ,
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/questionnaire-table/complex-table',
+    name: 'Table',
+    meta: {
+      title: 'Table',
+      icon: 'table'
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/questionnaire-user/user'),
+        name: 'user-table',
+        meta: { title: '用户管理',icon:'peoples'}
       }
     ]
   }

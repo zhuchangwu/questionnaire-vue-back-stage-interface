@@ -91,8 +91,6 @@
 <script>
   import questionnaireRequest from '@/api/questionnaireRequest'
   import {Message} from 'element-ui'
-
-
   export default {
     name: "complex-table",
     data() {
@@ -195,6 +193,7 @@
       doInputSearch(){
         if (this.inputSearch.trim()===''){
           Message.warning("请输入问卷名称再进行搜索");
+          return
         }
         this.currentPage=1;
         this.doGetQuestionnaireByPage(this.currentPage,this.pageSize,this.inputSearch)
