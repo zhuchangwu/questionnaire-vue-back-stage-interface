@@ -85,7 +85,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'index',
-        component: () => import('@/views/create-questionnaire/index'),
+        component: () => import('@/views/questionnaire-create/index'),
         name: 'Documentation',
         meta: { title: '新建问卷', icon: 'form', affix: true }
       }
